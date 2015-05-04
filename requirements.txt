@@ -1,0 +1,4 @@
+django<1.9
+django-suit
+django-nested-inline
+django-crispy-forms

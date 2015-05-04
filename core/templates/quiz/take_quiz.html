@@ -1,0 +1,166 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ object.title }}{% endblock title %}
+
+{% block home-active %}{% endblock home-active %}
+
+{% block extra_styles %}
+<style>
+  .question.active {
+    display: block;
+  }
+  .question {
+    width: 100vw;
+    height: 25vh;
+    padding-top: 5vh;
+    padding-left: 25vw;
+    padding-right: 25vw;
+    display: none;
+  }
+  .answer {
+    padding: 10px;
+    background-color: white;
+    border: 1px solid black;
+    border-radius: 10px;
+    margin: 10px 0px 10px 0px;
+    color: black;
+    cursor: pointer;
+    transition: 200ms all;
+  }
+  .answer:hover {
+    background: black;
+    color: white;
+  }
+  .answer.disabled {
+    cursor: default;
+  }
+  .results {
+    display: none;
+  }
+  .score {
+    width: 100%;
+    padding-top: 10%;
+    text-align: center;
+    font-size: 7em;
+  }
+  #results .btn-primary {
+    width: 49%;
+    margin-left: 2%;
+  }
+  #results .btn-success {
+    width: 49%;
+  }
+
+  @media only screen and (max-width: 768px) {
+    .question {
+      padding-left: 5vw;
+      padding-right: 5vw;
+    }
+  }
+</style>
+{% endblock extra_styles %}
+
+{% block extra_scripts %}
+<script>
+var score = 0;
+function disable_answers() {
+  $('.active .answer').addClass('disabled');
+}
+var ans_text;
+
+function show_results() {
+  $('.results').fadeIn(500);
+  $('#results-score').text(score);
+  $.each($('.question'), function (i, val) {
+    chosen_ans = $(val).find('.chosen');
+    ans_text = $(val).find('h1').text().trim();
+    ans_text = ans_text.slice(0, -6);
+    if (!$(chosen_ans).hasClass('correct')) {
+      $('.results-list').append('<li>' +
+          '<i class="fa fa-times"></i> <strong>' + ans_text + '</strong>' +
+          '<p>You chose: ' + chosen_ans.text() + '.</p><p>The correct answer was: ' + $(val).find('.correct').text() +
+          '</p></li>'
+      )
+    }
+    else {
+      $('.results-list').append('<li>' +
+          '<i class="fa fa-check"></i> <strong>' + ans_text + '</strong>' +
+          '<p>You chose: ' + chosen_ans.text() + '.</p><p>That is the correct answer.' +
+        '</p></li>'
+      )
+    }
+  })
+}
+
+function transition_quiz(question) {
+  disable_answers();
+  setTimeout(function () {
+    question.addClass('done');
+    question.fadeOut(500, function () {
+      question.removeClass('.active');
+      if (question.next('.question').length > 0) {
+        question.next('.question').fadeIn(500);
+      }
+      else {
+        show_results();
+      }
+    });
+  }, 500);
+}
+$('.answer').on('click', function () {
+  if (!$(this).hasClass('disabled')) {
+    $(this).addClass('chosen');
+    if ($(this).hasClass('correct')) {
+      score += 1;
+      $(this).css('background-color', 'green');
+      transition_quiz($(this).parent('.question'));
+    }
+    else {
+      $(this).css('background-color', 'red');
+      transition_quiz($(this).parent('.question'));
+    }
+  }
+});
+$('.hint').on('click', function () {
+  $(this).fadeOut(250);
+  $(this).addClass('disabled');
+  question = $(this).parents('.question')
+  answers = question.find('.answer').not('.correct').sort(function() { return 0.5 - Math.random() });
+  for (var i = answers.length - 1; i >= answers.length/2 - 1; i--) {
+    $(answers[i]).fadeOut(250);
+  };
+})
+</script>
+{% endblock extra_scripts %}
+
+{% block content %}
+  {% for question in object.questions %}
+    <div class="question {% if forloop.first %}active{% endif %}">
+      <h1>
+        {{ question.question }}
+        <span class="pull-right"><a href="#" class="hint btn btn-default btn-xs">Hint?</a></span>
+      </h1>
+      {% for answer in question.answers %}
+        <div class="answer {% if answer.correct %}correct{% endif %}">{{ answer.text }}</div>
+      {% endfor %}
+    </div>
+  {% endfor %}
+  <div class="results">
+    <div class="container">
+      <div class="row">
+        <div id="results" class="col-xs-12">
+          <div class="score">
+            Results:
+            <span id="results-score">0</span>/<span id="results-total">{{ object.questions|length }}</span>
+          </div>
+          <ul class="results-list">
+          </ul>
+          <div class="col-xs-12">
+            <a href="/" class="col-xs-6 btn btn-success">Try Other Quizzes</a>
+            <a href="." class="col-xs-6 btn btn-primary">Re-Take Quiz</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock content %}

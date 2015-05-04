@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+
+{% block title %}Home{% endblock title %}
+
+{% block extra_styles %}
+  <style>
+    .quiz-list {
+      list-style: none;
+      padding: 0;
+    }
+    .quiz-list li {
+      border: 1px solid black;
+      border-radius: 10px;
+      margin-bottom: 10px;
+    }
+    .quiz-list li a {
+      padding: 15px;
+      display: block;
+      color: black;
+      transition: 200ms all;
+      border-radius: 10px;
+    }
+    .quiz-list li a:hover {
+      text-decoration: none;
+      background: black;
+      color: white;
+    }
+  </style>
+{% endblock extra_styles %}
+
+{% block content %}
+  <div class="container">
+    <div class="row">
+      <div class="col-xs-12">
+        <p>Welcome to Study Crack. A study guide with a minimalist UI.</p>
+      </div>
+      <div class="col-xs-12">
+        <h2>Quizzes on Study Crack</h2>
+        <ul class="quiz-list">
+          {% for quiz in quizzes %}
+            <li><a href="{% url 'quiz_detail' quiz.pk %}">{{ quiz.title }}</a></li>
+          {% endfor %}
+        </ul>
+      </div>
+    </div>
+  </div>
+{% endblock content %}

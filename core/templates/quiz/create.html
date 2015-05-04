@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block extra_scripts %}
+<script>
+$('button').on('click', function () {
+  $('form').submit();
+})
+</script>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+  <div class="row">
+    <div class="col-xs-12">
+      <legend>Quiz Details</legend>
+      {% crispy form %}
+      <legend> Questions</legend>
+      {% crispy question_form %}
+      <button type="submit" class="btn btn-primary">Submit</button>
+    </div>
+  </div>
+</div>
+
+{% endblock content %}
